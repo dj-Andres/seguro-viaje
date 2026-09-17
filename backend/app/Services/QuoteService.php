@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\PolicyStatus;
 use App\Models\Insured;
 use App\Models\Policy;
 use Illuminate\Validation\ValidationException;
@@ -52,7 +53,7 @@ class QuoteService
             'tarifa_base' => $quote['base_rate'],
             'porcentaje_recargo' => $quote['surcharge_percentage'],
             'valor_total' => $quote['total'],
-            'estado' => Policy::STATUS_QUOTED,
+            'estado' => PolicyStatus::Quoted,
         ]);
     }
 
@@ -62,7 +63,7 @@ class QuoteService
     public function contract(Policy $policy): Policy
     {
         $policy->update([
-            'estado' => Policy::STATUS_CONTRACTED,
+            'estado' => PolicyStatus::Contracted,
             'fecha_contratacion' => now(),
         ]);
 

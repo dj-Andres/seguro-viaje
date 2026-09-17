@@ -3,242 +3,39 @@
 namespace Database\Seeders;
 
 use App\Models\Country;
+use App\Services\CountryService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Log;
 
 class CountrySeeder extends Seeder
 {
+    /**
+     * Populate the local "paises" snapshot from the REST Countries v5 API.
+     */
     public function run(): void
     {
-        $countries = $this->countries();
+        $countries = app(CountryService::class)->fetchFromApi();
+
+        if ($countries->isEmpty()) {
+            $this->command?->warn('No se pudieron obtener países de REST Countries v5. Se mantienen los registros existentes.');
+
+            return;
+        }
 
         foreach ($countries as $country) {
             Country::query()->updateOrCreate(
-                ['codigo' => $country['codigo']],
+                ['codigo' => $country['code']],
                 [
-                    'nombre' => $country['nombre'],
+                    'nombre' => $country['name'],
                     'region' => $country['region'],
                     'subregion' => $country['subregion'],
-                    'bandera' => 'https://flagcdn.com/w320/'.strtolower($country['codigo']).'.png',
+                    'bandera' => $country['flag'],
                 ],
             );
         }
-    }
 
-    /**
-     * Snapshot of countries used as local fallback when the external API is unavailable.
-     *
-     * @return array<int, array{nombre: string, codigo: string, region: string, subregion: string}>
-     */
-    private function countries(): array
-    {
-        return [
-            // Africa
-            ['nombre' => 'Argelia', 'codigo' => 'DZ', 'region' => 'Africa', 'subregion' => 'Northern Africa'],
-            ['nombre' => 'Angola', 'codigo' => 'AO', 'region' => 'Africa', 'subregion' => 'Middle Africa'],
-            ['nombre' => 'Benín', 'codigo' => 'BJ', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Botsuana', 'codigo' => 'BW', 'region' => 'Africa', 'subregion' => 'Southern Africa'],
-            ['nombre' => 'Burkina Faso', 'codigo' => 'BF', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Burundi', 'codigo' => 'BI', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Cabo Verde', 'codigo' => 'CV', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Camerún', 'codigo' => 'CM', 'region' => 'Africa', 'subregion' => 'Middle Africa'],
-            ['nombre' => 'República Centroafricana', 'codigo' => 'CF', 'region' => 'Africa', 'subregion' => 'Middle Africa'],
-            ['nombre' => 'Chad', 'codigo' => 'TD', 'region' => 'Africa', 'subregion' => 'Middle Africa'],
-            ['nombre' => 'Comoras', 'codigo' => 'KM', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'República del Congo', 'codigo' => 'CG', 'region' => 'Africa', 'subregion' => 'Middle Africa'],
-            ['nombre' => 'República Democrática del Congo', 'codigo' => 'CD', 'region' => 'Africa', 'subregion' => 'Middle Africa'],
-            ['nombre' => 'Yibuti', 'codigo' => 'DJ', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Egipto', 'codigo' => 'EG', 'region' => 'Africa', 'subregion' => 'Northern Africa'],
-            ['nombre' => 'Guinea Ecuatorial', 'codigo' => 'GQ', 'region' => 'Africa', 'subregion' => 'Middle Africa'],
-            ['nombre' => 'Eritrea', 'codigo' => 'ER', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Esuatini', 'codigo' => 'SZ', 'region' => 'Africa', 'subregion' => 'Southern Africa'],
-            ['nombre' => 'Etiopía', 'codigo' => 'ET', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Gabón', 'codigo' => 'GA', 'region' => 'Africa', 'subregion' => 'Middle Africa'],
-            ['nombre' => 'Gambia', 'codigo' => 'GM', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Ghana', 'codigo' => 'GH', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Guinea', 'codigo' => 'GN', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Guinea-Bisáu', 'codigo' => 'GW', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Costa de Marfil', 'codigo' => 'CI', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Kenia', 'codigo' => 'KE', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Lesoto', 'codigo' => 'LS', 'region' => 'Africa', 'subregion' => 'Southern Africa'],
-            ['nombre' => 'Liberia', 'codigo' => 'LR', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Libia', 'codigo' => 'LY', 'region' => 'Africa', 'subregion' => 'Northern Africa'],
-            ['nombre' => 'Madagascar', 'codigo' => 'MG', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Malaui', 'codigo' => 'MW', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Malí', 'codigo' => 'ML', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Mauritania', 'codigo' => 'MR', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Mauricio', 'codigo' => 'MU', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Marruecos', 'codigo' => 'MA', 'region' => 'Africa', 'subregion' => 'Northern Africa'],
-            ['nombre' => 'Mozambique', 'codigo' => 'MZ', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Namibia', 'codigo' => 'NA', 'region' => 'Africa', 'subregion' => 'Southern Africa'],
-            ['nombre' => 'Níger', 'codigo' => 'NE', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Nigeria', 'codigo' => 'NG', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Ruanda', 'codigo' => 'RW', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Santo Tomé y Príncipe', 'codigo' => 'ST', 'region' => 'Africa', 'subregion' => 'Middle Africa'],
-            ['nombre' => 'Senegal', 'codigo' => 'SN', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Seychelles', 'codigo' => 'SC', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Sierra Leona', 'codigo' => 'SL', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Somalia', 'codigo' => 'SO', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Sudáfrica', 'codigo' => 'ZA', 'region' => 'Africa', 'subregion' => 'Southern Africa'],
-            ['nombre' => 'Sudán del Sur', 'codigo' => 'SS', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Sudán', 'codigo' => 'SD', 'region' => 'Africa', 'subregion' => 'Northern Africa'],
-            ['nombre' => 'Tanzania', 'codigo' => 'TZ', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Togo', 'codigo' => 'TG', 'region' => 'Africa', 'subregion' => 'Western Africa'],
-            ['nombre' => 'Túnez', 'codigo' => 'TN', 'region' => 'Africa', 'subregion' => 'Northern Africa'],
-            ['nombre' => 'Uganda', 'codigo' => 'UG', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Zambia', 'codigo' => 'ZM', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-            ['nombre' => 'Zimbabue', 'codigo' => 'ZW', 'region' => 'Africa', 'subregion' => 'Eastern Africa'],
-
-            // Americas - South America
-            ['nombre' => 'Argentina', 'codigo' => 'AR', 'region' => 'Americas', 'subregion' => 'South America'],
-            ['nombre' => 'Bolivia', 'codigo' => 'BO', 'region' => 'Americas', 'subregion' => 'South America'],
-            ['nombre' => 'Brasil', 'codigo' => 'BR', 'region' => 'Americas', 'subregion' => 'South America'],
-            ['nombre' => 'Chile', 'codigo' => 'CL', 'region' => 'Americas', 'subregion' => 'South America'],
-            ['nombre' => 'Colombia', 'codigo' => 'CO', 'region' => 'Americas', 'subregion' => 'South America'],
-            ['nombre' => 'Ecuador', 'codigo' => 'EC', 'region' => 'Americas', 'subregion' => 'South America'],
-            ['nombre' => 'Guyana', 'codigo' => 'GY', 'region' => 'Americas', 'subregion' => 'South America'],
-            ['nombre' => 'Paraguay', 'codigo' => 'PY', 'region' => 'Americas', 'subregion' => 'South America'],
-            ['nombre' => 'Perú', 'codigo' => 'PE', 'region' => 'Americas', 'subregion' => 'South America'],
-            ['nombre' => 'Surinam', 'codigo' => 'SR', 'region' => 'Americas', 'subregion' => 'South America'],
-            ['nombre' => 'Uruguay', 'codigo' => 'UY', 'region' => 'Americas', 'subregion' => 'South America'],
-            ['nombre' => 'Venezuela', 'codigo' => 'VE', 'region' => 'Americas', 'subregion' => 'South America'],
-
-            // Americas - North / Central America & Caribbean
-            ['nombre' => 'Antigua y Barbuda', 'codigo' => 'AG', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'Bahamas', 'codigo' => 'BS', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'Barbados', 'codigo' => 'BB', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'Belice', 'codigo' => 'BZ', 'region' => 'Americas', 'subregion' => 'Central America'],
-            ['nombre' => 'Canadá', 'codigo' => 'CA', 'region' => 'Americas', 'subregion' => 'North America'],
-            ['nombre' => 'Costa Rica', 'codigo' => 'CR', 'region' => 'Americas', 'subregion' => 'Central America'],
-            ['nombre' => 'Cuba', 'codigo' => 'CU', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'Dominica', 'codigo' => 'DM', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'República Dominicana', 'codigo' => 'DO', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'El Salvador', 'codigo' => 'SV', 'region' => 'Americas', 'subregion' => 'Central America'],
-            ['nombre' => 'Granada', 'codigo' => 'GD', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'Guatemala', 'codigo' => 'GT', 'region' => 'Americas', 'subregion' => 'Central America'],
-            ['nombre' => 'Haití', 'codigo' => 'HT', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'Honduras', 'codigo' => 'HN', 'region' => 'Americas', 'subregion' => 'Central America'],
-            ['nombre' => 'Jamaica', 'codigo' => 'JM', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'México', 'codigo' => 'MX', 'region' => 'Americas', 'subregion' => 'North America'],
-            ['nombre' => 'Nicaragua', 'codigo' => 'NI', 'region' => 'Americas', 'subregion' => 'Central America'],
-            ['nombre' => 'Panamá', 'codigo' => 'PA', 'region' => 'Americas', 'subregion' => 'Central America'],
-            ['nombre' => 'San Cristóbal y Nieves', 'codigo' => 'KN', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'Santa Lucía', 'codigo' => 'LC', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'San Vicente y las Granadinas', 'codigo' => 'VC', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'Trinidad y Tobago', 'codigo' => 'TT', 'region' => 'Americas', 'subregion' => 'Caribbean'],
-            ['nombre' => 'Estados Unidos', 'codigo' => 'US', 'region' => 'Americas', 'subregion' => 'North America'],
-
-            // Asia
-            ['nombre' => 'Afganistán', 'codigo' => 'AF', 'region' => 'Asia', 'subregion' => 'Southern Asia'],
-            ['nombre' => 'Armenia', 'codigo' => 'AM', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Azerbaiyán', 'codigo' => 'AZ', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Baréin', 'codigo' => 'BH', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Bangladés', 'codigo' => 'BD', 'region' => 'Asia', 'subregion' => 'Southern Asia'],
-            ['nombre' => 'Bután', 'codigo' => 'BT', 'region' => 'Asia', 'subregion' => 'Southern Asia'],
-            ['nombre' => 'Brunéi', 'codigo' => 'BN', 'region' => 'Asia', 'subregion' => 'South-Eastern Asia'],
-            ['nombre' => 'Camboya', 'codigo' => 'KH', 'region' => 'Asia', 'subregion' => 'South-Eastern Asia'],
-            ['nombre' => 'China', 'codigo' => 'CN', 'region' => 'Asia', 'subregion' => 'Eastern Asia'],
-            ['nombre' => 'Chipre', 'codigo' => 'CY', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Georgia', 'codigo' => 'GE', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'India', 'codigo' => 'IN', 'region' => 'Asia', 'subregion' => 'Southern Asia'],
-            ['nombre' => 'Indonesia', 'codigo' => 'ID', 'region' => 'Asia', 'subregion' => 'South-Eastern Asia'],
-            ['nombre' => 'Irán', 'codigo' => 'IR', 'region' => 'Asia', 'subregion' => 'Southern Asia'],
-            ['nombre' => 'Irak', 'codigo' => 'IQ', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Israel', 'codigo' => 'IL', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Japón', 'codigo' => 'JP', 'region' => 'Asia', 'subregion' => 'Eastern Asia'],
-            ['nombre' => 'Jordania', 'codigo' => 'JO', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Kazajistán', 'codigo' => 'KZ', 'region' => 'Asia', 'subregion' => 'Central Asia'],
-            ['nombre' => 'Kuwait', 'codigo' => 'KW', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Kirguistán', 'codigo' => 'KG', 'region' => 'Asia', 'subregion' => 'Central Asia'],
-            ['nombre' => 'Laos', 'codigo' => 'LA', 'region' => 'Asia', 'subregion' => 'South-Eastern Asia'],
-            ['nombre' => 'Líbano', 'codigo' => 'LB', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Malasia', 'codigo' => 'MY', 'region' => 'Asia', 'subregion' => 'South-Eastern Asia'],
-            ['nombre' => 'Maldivas', 'codigo' => 'MV', 'region' => 'Asia', 'subregion' => 'Southern Asia'],
-            ['nombre' => 'Mongolia', 'codigo' => 'MN', 'region' => 'Asia', 'subregion' => 'Eastern Asia'],
-            ['nombre' => 'Myanmar', 'codigo' => 'MM', 'region' => 'Asia', 'subregion' => 'South-Eastern Asia'],
-            ['nombre' => 'Nepal', 'codigo' => 'NP', 'region' => 'Asia', 'subregion' => 'Southern Asia'],
-            ['nombre' => 'Corea del Norte', 'codigo' => 'KP', 'region' => 'Asia', 'subregion' => 'Eastern Asia'],
-            ['nombre' => 'Omán', 'codigo' => 'OM', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Pakistán', 'codigo' => 'PK', 'region' => 'Asia', 'subregion' => 'Southern Asia'],
-            ['nombre' => 'Palestina', 'codigo' => 'PS', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Filipinas', 'codigo' => 'PH', 'region' => 'Asia', 'subregion' => 'South-Eastern Asia'],
-            ['nombre' => 'Catar', 'codigo' => 'QA', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Arabia Saudita', 'codigo' => 'SA', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Singapur', 'codigo' => 'SG', 'region' => 'Asia', 'subregion' => 'South-Eastern Asia'],
-            ['nombre' => 'Corea del Sur', 'codigo' => 'KR', 'region' => 'Asia', 'subregion' => 'Eastern Asia'],
-            ['nombre' => 'Sri Lanka', 'codigo' => 'LK', 'region' => 'Asia', 'subregion' => 'Southern Asia'],
-            ['nombre' => 'Siria', 'codigo' => 'SY', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Taiwán', 'codigo' => 'TW', 'region' => 'Asia', 'subregion' => 'Eastern Asia'],
-            ['nombre' => 'Tayikistán', 'codigo' => 'TJ', 'region' => 'Asia', 'subregion' => 'Central Asia'],
-            ['nombre' => 'Tailandia', 'codigo' => 'TH', 'region' => 'Asia', 'subregion' => 'South-Eastern Asia'],
-            ['nombre' => 'Timor Oriental', 'codigo' => 'TL', 'region' => 'Asia', 'subregion' => 'South-Eastern Asia'],
-            ['nombre' => 'Turquía', 'codigo' => 'TR', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Turkmenistán', 'codigo' => 'TM', 'region' => 'Asia', 'subregion' => 'Central Asia'],
-            ['nombre' => 'Emiratos Árabes Unidos', 'codigo' => 'AE', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-            ['nombre' => 'Uzbekistán', 'codigo' => 'UZ', 'region' => 'Asia', 'subregion' => 'Central Asia'],
-            ['nombre' => 'Vietnam', 'codigo' => 'VN', 'region' => 'Asia', 'subregion' => 'South-Eastern Asia'],
-            ['nombre' => 'Yemen', 'codigo' => 'YE', 'region' => 'Asia', 'subregion' => 'Western Asia'],
-
-            // Europe
-            ['nombre' => 'Albania', 'codigo' => 'AL', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Andorra', 'codigo' => 'AD', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Austria', 'codigo' => 'AT', 'region' => 'Europe', 'subregion' => 'Western Europe'],
-            ['nombre' => 'Bielorrusia', 'codigo' => 'BY', 'region' => 'Europe', 'subregion' => 'Eastern Europe'],
-            ['nombre' => 'Bélgica', 'codigo' => 'BE', 'region' => 'Europe', 'subregion' => 'Western Europe'],
-            ['nombre' => 'Bosnia y Herzegovina', 'codigo' => 'BA', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Bulgaria', 'codigo' => 'BG', 'region' => 'Europe', 'subregion' => 'Eastern Europe'],
-            ['nombre' => 'Croacia', 'codigo' => 'HR', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Chequia', 'codigo' => 'CZ', 'region' => 'Europe', 'subregion' => 'Eastern Europe'],
-            ['nombre' => 'Dinamarca', 'codigo' => 'DK', 'region' => 'Europe', 'subregion' => 'Northern Europe'],
-            ['nombre' => 'Estonia', 'codigo' => 'EE', 'region' => 'Europe', 'subregion' => 'Northern Europe'],
-            ['nombre' => 'Finlandia', 'codigo' => 'FI', 'region' => 'Europe', 'subregion' => 'Northern Europe'],
-            ['nombre' => 'Francia', 'codigo' => 'FR', 'region' => 'Europe', 'subregion' => 'Western Europe'],
-            ['nombre' => 'Alemania', 'codigo' => 'DE', 'region' => 'Europe', 'subregion' => 'Western Europe'],
-            ['nombre' => 'Grecia', 'codigo' => 'GR', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Hungría', 'codigo' => 'HU', 'region' => 'Europe', 'subregion' => 'Eastern Europe'],
-            ['nombre' => 'Islandia', 'codigo' => 'IS', 'region' => 'Europe', 'subregion' => 'Northern Europe'],
-            ['nombre' => 'Irlanda', 'codigo' => 'IE', 'region' => 'Europe', 'subregion' => 'Northern Europe'],
-            ['nombre' => 'Italia', 'codigo' => 'IT', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Letonia', 'codigo' => 'LV', 'region' => 'Europe', 'subregion' => 'Northern Europe'],
-            ['nombre' => 'Liechtenstein', 'codigo' => 'LI', 'region' => 'Europe', 'subregion' => 'Western Europe'],
-            ['nombre' => 'Lituania', 'codigo' => 'LT', 'region' => 'Europe', 'subregion' => 'Northern Europe'],
-            ['nombre' => 'Luxemburgo', 'codigo' => 'LU', 'region' => 'Europe', 'subregion' => 'Western Europe'],
-            ['nombre' => 'Malta', 'codigo' => 'MT', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Moldavia', 'codigo' => 'MD', 'region' => 'Europe', 'subregion' => 'Eastern Europe'],
-            ['nombre' => 'Mónaco', 'codigo' => 'MC', 'region' => 'Europe', 'subregion' => 'Western Europe'],
-            ['nombre' => 'Montenegro', 'codigo' => 'ME', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Países Bajos', 'codigo' => 'NL', 'region' => 'Europe', 'subregion' => 'Western Europe'],
-            ['nombre' => 'Macedonia del Norte', 'codigo' => 'MK', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Noruega', 'codigo' => 'NO', 'region' => 'Europe', 'subregion' => 'Northern Europe'],
-            ['nombre' => 'Polonia', 'codigo' => 'PL', 'region' => 'Europe', 'subregion' => 'Eastern Europe'],
-            ['nombre' => 'Portugal', 'codigo' => 'PT', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Rumania', 'codigo' => 'RO', 'region' => 'Europe', 'subregion' => 'Eastern Europe'],
-            ['nombre' => 'Rusia', 'codigo' => 'RU', 'region' => 'Europe', 'subregion' => 'Eastern Europe'],
-            ['nombre' => 'San Marino', 'codigo' => 'SM', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Serbia', 'codigo' => 'RS', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Eslovaquia', 'codigo' => 'SK', 'region' => 'Europe', 'subregion' => 'Eastern Europe'],
-            ['nombre' => 'Eslovenia', 'codigo' => 'SI', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'España', 'codigo' => 'ES', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-            ['nombre' => 'Suecia', 'codigo' => 'SE', 'region' => 'Europe', 'subregion' => 'Northern Europe'],
-            ['nombre' => 'Suiza', 'codigo' => 'CH', 'region' => 'Europe', 'subregion' => 'Western Europe'],
-            ['nombre' => 'Ucrania', 'codigo' => 'UA', 'region' => 'Europe', 'subregion' => 'Eastern Europe'],
-            ['nombre' => 'Reino Unido', 'codigo' => 'GB', 'region' => 'Europe', 'subregion' => 'Northern Europe'],
-            ['nombre' => 'Ciudad del Vaticano', 'codigo' => 'VA', 'region' => 'Europe', 'subregion' => 'Southern Europe'],
-
-            // Oceania
-            ['nombre' => 'Australia', 'codigo' => 'AU', 'region' => 'Oceania', 'subregion' => 'Australia and New Zealand'],
-            ['nombre' => 'Fiyi', 'codigo' => 'FJ', 'region' => 'Oceania', 'subregion' => 'Melanesia'],
-            ['nombre' => 'Kiribati', 'codigo' => 'KI', 'region' => 'Oceania', 'subregion' => 'Micronesia'],
-            ['nombre' => 'Islas Marshall', 'codigo' => 'MH', 'region' => 'Oceania', 'subregion' => 'Micronesia'],
-            ['nombre' => 'Micronesia', 'codigo' => 'FM', 'region' => 'Oceania', 'subregion' => 'Micronesia'],
-            ['nombre' => 'Nauru', 'codigo' => 'NR', 'region' => 'Oceania', 'subregion' => 'Micronesia'],
-            ['nombre' => 'Nueva Zelanda', 'codigo' => 'NZ', 'region' => 'Oceania', 'subregion' => 'Australia and New Zealand'],
-            ['nombre' => 'Palaos', 'codigo' => 'PW', 'region' => 'Oceania', 'subregion' => 'Micronesia'],
-            ['nombre' => 'Papúa Nueva Guinea', 'codigo' => 'PG', 'region' => 'Oceania', 'subregion' => 'Melanesia'],
-            ['nombre' => 'Samoa', 'codigo' => 'WS', 'region' => 'Oceania', 'subregion' => 'Polynesia'],
-            ['nombre' => 'Islas Salomón', 'codigo' => 'SB', 'region' => 'Oceania', 'subregion' => 'Melanesia'],
-            ['nombre' => 'Tonga', 'codigo' => 'TO', 'region' => 'Oceania', 'subregion' => 'Polynesia'],
-            ['nombre' => 'Tuvalu', 'codigo' => 'TV', 'region' => 'Oceania', 'subregion' => 'Polynesia'],
-            ['nombre' => 'Vanuatu', 'codigo' => 'VU', 'region' => 'Oceania', 'subregion' => 'Melanesia'],
-        ];
+        Log::info('CountrySeeder: países sincronizados desde REST Countries v5.', [
+            'total' => $countries->count(),
+        ]);
     }
 }

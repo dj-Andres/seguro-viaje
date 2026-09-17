@@ -24,7 +24,7 @@ class PolicyResource extends JsonResource
             'tarifa_base' => (float) $this->tarifa_base,
             'porcentaje_recargo' => (float) $this->porcentaje_recargo,
             'valor_total' => (float) $this->valor_total,
-            'estado' => $this->estado,
+            'estado' => $this->estado?->value,
             'fecha_contratacion' => $this->fecha_contratacion?->toISOString(),
             'created_at' => $this->created_at?->toISOString(),
         ];

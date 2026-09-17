@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PolicyStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,10 +11,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Policy extends Model
 {
     use HasFactory;
-
-    public const STATUS_QUOTED = 'cotizado';
-
-    public const STATUS_CONTRACTED = 'contratado';
 
     protected $table = 'polizas';
 
@@ -41,6 +38,7 @@ class Policy extends Model
             'tarifa_base' => 'decimal:2',
             'porcentaje_recargo' => 'decimal:2',
             'valor_total' => 'decimal:2',
+            'estado' => PolicyStatus::class,
         ];
     }
 

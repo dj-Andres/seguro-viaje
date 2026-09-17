@@ -73,7 +73,7 @@ class CountryService
      *
      * @return Collection<int, array<string, mixed>>
      */
-    private function fetchFromApi(): Collection
+    public function fetchFromApi(): Collection
     {
         $key = (string) config('restcountries.key');
 

@@ -75,8 +75,9 @@ mysql -u root -e "CREATE DATABASE seguro_viaje CHARACTER SET utf8mb4 COLLATE utf
 php artisan migrate --seed
 ```
 
-El seeder `CountrySeeder` carga un snapshot de países que se usa como **fallback** si la API
-externa no está disponible.
+El seeder `CountrySeeder` obtiene los países directamente de la API **REST Countries v5** y los
+guarda en la tabla `paises`. Ese snapshot local se usa como **fallback** si la API externa no está
+disponible en tiempo de ejecución.
 
 ### 6. Levantar el servidor
 

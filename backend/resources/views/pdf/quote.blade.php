@@ -1,3 +1,6 @@
+@php
+    use App\Enums\PolicyStatus;
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -63,7 +66,7 @@
     <div class="card">
         <div class="card-body">
             Estado:
-            @if ($policy->estado === 'contratado')
+            @if ($policy->estado === PolicyStatus::Contracted)
                 <span class="badge badge-contracted">Contratado</span>
             @else
                 <span class="badge badge-quoted">Cotizado</span>
