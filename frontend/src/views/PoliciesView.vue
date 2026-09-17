@@ -3,10 +3,12 @@ import { onMounted, reactive } from 'vue'
 import { usePoliciesStore } from '../stores/policies'
 import { quotePdfUrl } from '../services/quotes'
 import { useToast } from '../composables/useToast'
+import { useConfirm } from '../composables/useConfirm'
 import { useLoading } from '../composables/useLoading'
 
 const store = usePoliciesStore()
 const toast = useToast()
+const { confirm } = useConfirm()
 const { run } = useLoading()
 
 const filters = reactive({
@@ -53,6 +55,27 @@ function formatDate(value) {
 onMounted(() => {
   fetchWithFeedback(() => store.fetch())
 })
+
+async function contract(policy) {
+  const ok = await confirm({
+    title: '¿Contratar el seguro?',
+    text: `Se contratará el seguro de ${policy.asegurado?.nombres ?? ''} ${policy.asegurado?.apellidos ?? ''}`.trim(),
+    icon: 'question',
+    confirmButtonColor: '#16a34a',
+    confirmButtonText: 'Sí, contratar',
+  })
+
+  if (!ok) return
+
+  try {
+    const body = await run(() => store.contract(policy.id))
+    toast.success(body?.message || 'Seguro contratado correctamente.')
+  } catch (error) {
+    const first = error?.fieldErrors ? Object.values(error.fieldErrors)[0] : null
+    const message = first ? (Array.isArray(first) ? first[0] : first) : error?.message
+    toast.error(message || 'No se pudo contratar el seguro.')
+  }
+}
 </script>
 
 <template>
@@ -140,7 +163,7 @@ onMounted(() => {
             <th class="px-4 py-3 text-left font-semibold text-gray-600">Valor</th>
             <th class="px-4 py-3 text-left font-semibold text-gray-600">Estado</th>
             <th class="px-4 py-3 text-left font-semibold text-gray-600">Creado</th>
-            <th class="px-4 py-3 text-left font-semibold text-gray-600"></th>
+            <th class="px-4 py-3 text-right font-semibold text-gray-600">Acciones</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -166,13 +189,23 @@ onMounted(() => {
             </td>
             <td class="px-4 py-3 text-gray-600">{{ formatDate(policy.created_at) }}</td>
             <td class="px-4 py-3">
-              <a
-                :href="quotePdfUrl(policy.id)"
-                target="_blank"
-                class="text-sm font-medium text-blue-600 hover:text-blue-800"
-              >
-                PDF
-              </a>
+              <div class="flex items-center justify-end gap-3">
+                <button
+                  v-if="policy.estado === 'cotizado'"
+                  type="button"
+                  class="rounded-md bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700"
+                  @click="contract(policy)"
+                >
+                  Contratar
+                </button>
+                <a
+                  :href="quotePdfUrl(policy.id)"
+                  target="_blank"
+                  class="text-sm font-medium text-blue-600 hover:text-blue-800"
+                >
+                  PDF
+                </a>
+              </div>
             </td>
           </tr>
         </tbody>

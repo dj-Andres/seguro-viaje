@@ -10,10 +10,10 @@ import LoadingOverlay from './components/LoadingOverlay.vue'
         <span class="text-lg font-bold text-blue-700">Seguro de Viaje</span>
         <div class="flex gap-4">
           <RouterLink to="/" class="text-sm font-medium text-gray-700 hover:text-blue-600">
-            Cotizar
+            Cotizaciones
           </RouterLink>
-          <RouterLink to="/consultas" class="text-sm font-medium text-gray-700 hover:text-blue-600">
-            Consultas
+          <RouterLink to="/cotizar" class="text-sm font-medium text-gray-700 hover:text-blue-600">
+            Cotizar
           </RouterLink>
         </div>
       </div>

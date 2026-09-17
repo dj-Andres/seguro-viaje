@@ -5,8 +5,8 @@ import PoliciesView from '../views/PoliciesView.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', name: 'quote', component: QuoteView },
-    { path: '/consultas', name: 'policies', component: PoliciesView },
+    { path: '/', name: 'policies', component: PoliciesView },
+    { path: '/cotizar', name: 'quote', component: QuoteView },
   ],
 })
 

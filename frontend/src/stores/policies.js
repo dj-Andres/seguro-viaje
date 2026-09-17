@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { listQuotes } from '../services/quotes'
+import { listQuotes, contractQuote } from '../services/quotes'
 
 export const usePoliciesStore = defineStore('policies', {
   state: () => ({
@@ -53,6 +53,12 @@ export const usePoliciesStore = defineStore('policies', {
       if (page < 1 || page > this.meta.last_page) return
       this.meta.current_page = page
       return this.fetch()
+    },
+
+    async contract(id) {
+      const { data: body } = await contractQuote(id)
+      await this.fetch()
+      return body
     },
   },
 })
